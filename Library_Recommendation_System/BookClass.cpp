@@ -9,8 +9,7 @@ private:
 	string bookTitle;
 	string author;
 	string genre;
-	vector<LibraryMember> *checkoutHistory;
-	int userCount;
+	vector<LibraryMember *> checkoutHistory;
 
 public:
 	Book()
@@ -18,8 +17,6 @@ public:
 		bookTitle = "";
 		author = "";
 		genre = "";
-		checkoutHistory = NULL;
-		userCount = 0;
 	}
 
 	Book(string title)
@@ -27,8 +24,6 @@ public:
 		bookTitle = title;
 		author = "";
 		genre = "";
-		checkoutHistory = NULL;
-		userCount = 0;
 	}
 	
 	Book(string title, string genre)
@@ -36,8 +31,6 @@ public:
 		bookTitle = title;
 		author = "";
 		genre = genre;
-		checkoutHistory = NULL;
-		userCount = 0;
 	}
 
 	Book(string title, string writerName, string bookGenre)
@@ -45,14 +38,11 @@ public:
 		bookTitle = title;
 		author = writerName;
 		genre = bookGenre;
-		checkoutHistory = NULL;
-		userCount = 0;
 	}
 
 	void recordCheckout(LibraryMember *user)
 	{
-		checkoutHistory[userCount] = user;
-		userCount++;
+		checkoutHistory[checkoutHistory.size()] = user;
 	}
 
 	string getTitle()

@@ -8,65 +8,43 @@ class LibraryMember
 {
 private:
 	string name;
-	//string memberID;
-	Book *bookCheckoutHistory[1000];
-	Book *fullLibraryCatalogue[1000];
-	Book *recommendedTitles[1000];
-	int checkoutHistoryCount;
-	int fullCatalogueCount;
-	int recommendationsCount;
+	vector<Book *> bookCheckoutHistory;
+	vector<Book> fullLibraryCatalogue;
+	vector<Book> recommendedTitles;
+
 
 public:
 	LibraryMember()
 	{
 		name = "";
-		checkoutHistoryCount = 0;
-		fullCatalogueCount = 0;
-		recommendationsCount = 0;
-		*bookCheckoutHistory = NULL;
-		*fullLibraryCatalogue = NULL;
-		*recommendedTitles = NULL;
 	}
 
 	LibraryMember(string userName)
 	{
 		name = userName;
-		checkoutHistoryCount = 0;
-		fullCatalogueCount = 0;
-		recommendationsCount = 0;
-		*bookCheckoutHistory = NULL;
-		*fullLibraryCatalogue = NULL;
-		*recommendedTitles = NULL;
 	}
 
-	LibraryMember(string userName, Book &libraryCatalogue, int libraryCatalogueSize)
+	LibraryMember(string userName, vector<Book>& libraryCatalogue)
 	{
 		name = userName;
-		checkoutHistoryCount = 0;
-		recommendationsCount = 0;
-		*recommendedTitles = NULL;
-		*bookCheckoutHistory = NULL;
-		*fullLibraryCatalogue = &libraryCatalogue;
-		fullCatalogueCount = libraryCatalogueSize;
+		fullLibraryCatalogue = libraryCatalogue;
 	}
 
-	void AttachSecondVertexSet(Book& libraryCatalogue, int libraryCatalogueSize)
+	void AttachSecondVertexSet(vector<Book>& libraryCatalogue)
 	{
-		*fullLibraryCatalogue = &libraryCatalogue;
-		fullCatalogueCount = libraryCatalogueSize;
+		fullLibraryCatalogue = libraryCatalogue;
 	}
 
 	void CheckOutBook(string bookTitle)
 	{
-		if (fullCatalogueCount)
+		if (fullLibraryCatalogue.size())
 		{
-			for (int i = 0; i < fullCatalogueCount; i++)
+			for (int i = 0; i < fullLibraryCatalogue.size(); i++)
 			{
-				if (bookTitle == fullLibraryCatalogue[i]->getTitle())
+				if (bookTitle == fullLibraryCatalogue[i].getTitle())
 				{
-					bookCheckoutHistory[checkoutHistoryCount] = fullLibraryCatalogue[i];
-					checkoutHistoryCount++;
-					fullLibraryCatalogue[i]->recordCheckout(*this);
+					bookCheckoutHistory[bookCheckoutHistory.size()] = &fullLibraryCatalogue[i];
+					fullLibraryCatalogue[i].recordCheckout(this);
 				}
 			}
 		}
@@ -78,19 +56,17 @@ public:
 
 	void PopulateRecommendationArray()
 	{
-		for (int i = 0; i < checkoutHistoryCount; i++)
+		for (int i = 0; i < bookCheckoutHistory.size(); i++)
 		{
-			for (int j = 0; j < fullCatalogueCount; j++)	//O(n^2) need to find more efficient implementation
-			{												
-				if (bookCheckoutHistory[i]->getGenre() == fullLibraryCatalogue[j]->getGenre())
+			for (int j = 0; j < fullLibraryCatalogue.size(); j++)	//O(n^2) need to find more efficient implementation
+			{		
+				if (bookCheckoutHistory[i]->getGenre() == fullLibraryCatalogue[j].getGenre())
 				{
-					recommendedTitles[recommendationsCount] = fullLibraryCatalogue[j];
-					recommendationsCount++;
+					recommendedTitles[recommendedTitles.size()] = fullLibraryCatalogue[j];
 				}
-				else if (bookCheckoutHistory[i]->getAuthor() == fullLibraryCatalogue[j]->getAuthor())
+				else if (bookCheckoutHistory[i]->getAuthor() == fullLibraryCatalogue[j].getAuthor())
 				{
-					recommendedTitles[recommendationsCount] = fullLibraryCatalogue[j];
-					recommendationsCount++;
+					recommendedTitles[recommendedTitles.size()] = fullLibraryCatalogue[j];
 				}
 			}
 		}
@@ -98,11 +74,11 @@ public:
 
 	void RemoveSpecificRecommendation(string bookTitle)
 	{
-		for (int i = 0; i < recommendationsCount; i++)
+		for (int i = 0; i < recommendedTitles.size(); i++)
 		{
-			if (recommendedTitles[i]->getTitle() == bookTitle)
+			if (recommendedTitles[i].getTitle() == bookTitle)
 			{
-				recommendedTitles[i] = recommendedTitles[i+1];
+				recommendedTitles.erase(recommendedTitles.begin() + i);
 				break;
 			}
 		}
@@ -110,18 +86,29 @@ public:
 
 	void RemoveRecommendationsByGenre(string bookGenre)
 	{
-		for (int i = 0; i < recommendationsCount; i++)
+		for (int i = 0; i < recommendedTitles.size(); i++)
 		{
-			if (recommendedTitles[i]->getGenre() == bookGenre)
+			if (recommendedTitles[i].getGenre() == bookGenre)
 			{
-				recommendedTitles[i] = recommendedTitles[i + 1];
+				recommendedTitles.erase(recommendedTitles.begin() + i);
+			}
+		}
+	}
+
+	void RemoveRecommendationByAuthor(string bookAuthor)
+	{
+		for (int i = 0; i < recommendedTitles.size(); i++)
+		{
+			if (recommendedTitles[i].getAuthor() == bookAuthor)
+			{
+				recommendedTitles.erase(recommendedTitles.begin() + i);
 			}
 		}
 	}
 
 	void PrintOutUserHistory()
 	{
-		for (int i = 0; i < checkoutHistoryCount; i++)
+		for (int i = 0; i < bookCheckoutHistory.size(); i++)
 		{
 			cout << bookCheckoutHistory[i]->getTitle() << '\n';
 		}
@@ -131,9 +118,9 @@ public:
 
 	void PrintOutRecommendations()
 	{
-		for (int i = 0; i < recommendationsCount; i++)
+		for (int i = 0; i < recommendedTitles.size(); i++)
 		{
-			cout << recommendedTitles[i]->getTitle() << '\n';
+			cout << recommendedTitles[i].getTitle() << '\n';
 		}
 
 		cout << endl;
